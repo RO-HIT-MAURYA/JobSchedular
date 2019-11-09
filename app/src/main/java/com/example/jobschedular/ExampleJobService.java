@@ -1,7 +1,10 @@
 package com.example.jobschedular;
 
+import android.app.job.JobInfo;
 import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.content.ComponentName;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -22,15 +25,8 @@ public class ExampleJobService extends JobService {
     int j;
     private void doBackgroundWork(final JobParameters params)
     {
-        final Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                handler.postDelayed(this,1000);
-                Log.e(TAG, "run: " + j++);
-            }
-        };
-        runnable.run();
+        Log.e(TAG, "run: " + j++);
+
 
         /*for (int i = 0; i < 10; i++) {
             Log.e(TAG, "run: " + i);
@@ -43,7 +39,29 @@ public class ExampleJobService extends JobService {
 
         Log.e(TAG, "Job finished");
 //        new MainActivity().scheduleJob(null);
-        jobFinished(params, true);
+        jobFinished(params, false);
+
+        rescheduleJob();
+
+    }
+
+    private void rescheduleJob() {
+        ComponentName componentName = new ComponentName(this, ExampleJobService.class);
+        JobInfo info = new JobInfo.Builder(123, componentName)
+                //.setRequiresCharging(true)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true)
+                //.setPeriodic(321)
+                .build();
+
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+
+        int resultCode = scheduler.schedule(info);
+        if (resultCode == JobScheduler.RESULT_SUCCESS) {
+            Log.e(TAG, "Job scheduled");
+        } else {
+            Log.e(TAG, "Job scheduling failed");
+        }
     }
 
     @Override

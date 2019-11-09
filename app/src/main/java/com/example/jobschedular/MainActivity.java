@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+
         int resultCode = scheduler.schedule(info);
         if (resultCode == JobScheduler.RESULT_SUCCESS) {
             Log.e(TAG, "Job scheduled");
